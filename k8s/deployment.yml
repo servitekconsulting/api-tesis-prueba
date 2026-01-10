@@ -1,0 +1,21 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-java
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp-java
+  template:
+    metadata:
+      labels:
+        app: myapp-java
+    spec:
+      containers:
+        - name: myapp-java
+          image: tesiscloud.azurecr.io/myapp-java:latest  # será sustituida por el tag SHA
+          ports:
+            - containerPort: 8080

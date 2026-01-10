@@ -1,0 +1,73 @@
+name: Check Pull Request
+on:
+  pull_request:
+    branches: [ develop ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-feature:
+    runs-on: ubuntu-latest
+    steps:
+      #############################################################
+      # 2- dowload code from feature branch , setup java 8 and check that source code is buildable
+      ########################################################
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: pull and checkout from git repository
+        run: |
+          echo "pulling and checking out from git repository"
+
+      - name: setup java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # See 'Supported distributions' for available options
+          java-version: '17'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v5.0.1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: build with maven
+        run: |
+          mvn clean test package
+          echo "build with maven"
+
+  chatgpt-review-ia:
+    if: contains(github.event.pull_request.labels.*.name, 'chatgpt-review')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        #run: pip install openai
+        run: python -m pip install --upgrade pip && pip install "openai>=1.0.0"
+
+      - name: Run ChatGPT Review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          REVIEW_FILE_PATTERNS: "*.java,pom.xml"
+        run: |
+          python .github/scripts/review_inline.py
