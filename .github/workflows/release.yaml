@@ -49,3 +49,45 @@ jobs:
       #releaseCandidateVersion: ${{ inputs.releaseCandidateVersion }}
   #    releaseCandidateVersion: ${{ github.event.inputs.releaseCandidateVersion }}
 
+  create_rc_release:
+    needs: [unit_test]   # por si quieres encadenarlo
+    uses: servitekconsulting/reusable-workflows/.github/workflows/create_release.yaml@main
+    with:
+      version: ${{ github.event.inputs.releaseCandidateVersion }}
+      title: "Release Candidate ${{ github.event.inputs.releaseCandidateVersion }}"
+      generate_notes: true
+      draft: false
+    secrets: inherit
+
+
+  promote_to_prod:
+    needs: [create_rc_release]  # espera a que stg esté OK
+    uses: servitekconsulting/reusable-workflows/.github/workflows/promote_release.yaml@main
+    permissions:
+      contents: write
+      packages: write
+    with:
+      rc_version: ${{ github.event.inputs.releaseCandidateVersion }}
+      image-name: myapp-java
+      publish_latest: true
+      do_ghcr: true
+      do_acr: true
+    secrets: inherit
+    #environment:
+    #  name: prod
+      #url: https://tu-dominio-de-prod.example.com   # opcional, aparece en la UI
+
+
+  deploy_prod:
+    needs: [promote_to_prod]
+    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    with:
+      working-directory: .
+      image-name: myapp-java
+      environment: prod
+      releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el GA
+    secrets: inherit
