@@ -72,6 +72,14 @@ jobs:
       publish_latest: true
       do_ghcr: true
       do_acr: true
+        
+      # Seguridad:
+      prod_branch: master
+      protected_env_name: prod
+      require_org_member: true
+      #allowed_actors: "Developer1-ServitekConsulting"     # opcional
+      #allowed_teams:  "devops,platform-admins"            # opcional (slugs de team)
+
     secrets: inherit
     #environment:
     #  name: prod
