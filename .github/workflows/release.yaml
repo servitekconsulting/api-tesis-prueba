@@ -9,7 +9,7 @@ on:
 run-name: Release Flow at version ${{ github.event.inputs.releaseCandidateVersion }}
 
 permissions:
-  contents: write
+  contents: read
   packages: write
   actions: read
 
