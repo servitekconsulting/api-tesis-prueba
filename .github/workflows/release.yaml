@@ -9,7 +9,7 @@ on:
 run-name: Release Flow at version ${{ github.event.inputs.releaseCandidateVersion }}
 
 permissions:
-  contents: read
+  contents: write
   packages: write
   actions: read
 
@@ -73,8 +73,8 @@ jobs:
       do_ghcr: true
       do_acr: true
     secrets: inherit
-    environment:
-      name: prod
+    #environment:
+    #  name: prod
       #url: https://tu-dominio-de-prod.example.com   # opcional, aparece en la UI
 
 
