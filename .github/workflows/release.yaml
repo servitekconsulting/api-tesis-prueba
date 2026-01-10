@@ -78,7 +78,7 @@ jobs:
       prod_branch_pattern: "release/*"  # permitimos ramas release/*
       allow_tags: true               # opcional, permitir si corres desde un TAG
       protected_env_name: prod
-      require_org_member: true
+      require_org_member: false
 
     secrets: inherit
 
