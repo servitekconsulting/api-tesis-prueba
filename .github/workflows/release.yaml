@@ -83,16 +83,31 @@ jobs:
     secrets: inherit
 
 
-  deploy_prod:
-    needs: [promote_to_prod]
-    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
+  #deploy_prod:
+  #  needs: [promote_to_prod]
+  #  uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
+  #  permissions:
+  #    contents: read
+  #    packages: write
+  #    id-token: write
+  #  with:
+  #    working-directory: .
+  #    image-name: myapp-java
+  #    environment: prod
+  #    releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el GA
+  #  secrets: inherit
+
+  generate_release:
+    needs: [deploy_prod]
+    uses: servitekconsulting/reusable-workflows/.github/workflows/generate_release.yaml@main
     permissions:
-      contents: read
+      contents: read   # el job interno pide write; aquí puedes dejar read y el reusable eleva a write
       packages: write
       id-token: write
     with:
-      working-directory: .
-      image-name: myapp-java
       environment: prod
-      releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el GA
+      rc_version: ${{ github.event.inputs.releaseCandidateVersion }}
+      title_prefix: "Release"
+      generate_notes: true
+      mark_latest: true
     secrets: inherit
