@@ -93,7 +93,7 @@ jobs:
   #  with:
   #    working-directory: .
   #    image-name: myapp-java
-  #    environment: prod
+  #    environment: prd
   #    releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el GA
   #  secrets: inherit
 
@@ -105,7 +105,7 @@ jobs:
       packages: write
       id-token: write
     with:
-      environment: prod
+      #environment: prod
       rc_version: ${{ github.event.inputs.releaseCandidateVersion }}
       title_prefix: "Release"
       generate_notes: true
