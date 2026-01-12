@@ -33,24 +33,24 @@ jobs:
       coverage_path: "target/site/jacoco"
     secrets: inherit
 
-  #build_deploy_stg:
-  #  permissions:
-  #    contents: read
-  #    packages: write
-  #    id-token: write
+  build_deploy_stg:
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
 
-  #  uses: Developer1-ServitekConsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
-  #  needs: [unit_test]
-  #  secrets: inherit
-  #  with:
-  #    working-directory: .
-  #    image-name: myapp-java
-  #    environment: stg
+    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
+    needs: [unit_test]
+    secrets: inherit
+    with:
+      working-directory: .
+      image-name: myapp-java
+      environment: stg
       #releaseCandidateVersion: ${{ inputs.releaseCandidateVersion }}
-  #    releaseCandidateVersion: ${{ github.event.inputs.releaseCandidateVersion }}
+      releaseCandidateVersion: ${{ github.event.inputs.releaseCandidateVersion }}
 
   create_rc_release:
-    needs: [unit_test]   # por si quieres encadenarlo
+    needs: [build_deploy_stg]   # por si quieres encadenarlo
     uses: servitekconsulting/reusable-workflows/.github/workflows/create_release.yaml@main
     with:
       version: ${{ github.event.inputs.releaseCandidateVersion }}
@@ -58,7 +58,6 @@ jobs:
       generate_notes: true
       draft: false
     secrets: inherit
-
 
   promote_to_prod:
     needs: [create_rc_release]  # espera a que stg esté OK
@@ -84,7 +83,7 @@ jobs:
 
   deploy_prod:
     needs: [promote_to_prod]
-    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy_prod.yaml@main
+    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
     permissions:
       contents: read
       packages: write
@@ -94,8 +93,8 @@ jobs:
       image-name: myapp-java
       environment: prd
       releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el 
-      deployment_name: "myapp-java"       # <- nombre exacto del Deployment en k8s
-      namespace: "default"
+      #deployment_name: "myapp-java"       # <- nombre exacto del Deployment en k8s
+      #namespace: "default"
     secrets: inherit
 
   generate_release:
