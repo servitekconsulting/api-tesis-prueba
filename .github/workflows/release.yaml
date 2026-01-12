@@ -118,7 +118,6 @@ jobs:
       to_revision: "0"
       namespace: "default"
       deployment_name: "myapp-java"
-      container_name: ""      # si igual al deployment
       environment: ""         # sin aprobación para rollback automático
     secrets: inherit
 
