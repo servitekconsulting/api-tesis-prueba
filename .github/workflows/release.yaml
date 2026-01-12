@@ -82,20 +82,21 @@ jobs:
 
     secrets: inherit
 
-
-  #deploy_prod:
-  #  needs: [promote_to_prod]
-  #  uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy.yaml@main
-  #  permissions:
-  #    contents: read
-  #    packages: write
-  #    id-token: write
-  #  with:
-  #    working-directory: .
-  #    image-name: myapp-java
-  #    environment: prd
-  #    releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el GA
-  #  secrets: inherit
+  deploy_prod:
+    needs: [promote_to_prod]
+    uses: servitekconsulting/reusable-workflows/.github/workflows/build_deploy_prod.yaml@main
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+    with:
+      working-directory: .
+      image-name: myapp-java
+      environment: prd
+      releaseCandidateVersion: ${{ needs.promote_to_prod.outputs.ga_version }}  # usa el 
+      deployment_name: "myapp-java"       # <- nombre exacto del Deployment en k8s
+      namespace: "default"
+    secrets: inherit
 
   generate_release:
     needs: [promote_to_prod]
