@@ -99,7 +99,7 @@ jobs:
     secrets: inherit
 
   generate_release:
-    needs: [promote_to_prod]
+    needs: [deploy_prod]
     uses: servitekconsulting/reusable-workflows/.github/workflows/generate_release.yaml@main
     permissions:
       contents: write   # el job interno pide write; aquí puedes dejar read y el reusable eleva a write

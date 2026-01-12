@@ -13,6 +13,7 @@ on:
       to_revision:
         description: "Revisión K8s (ej: 3). 0 o vacío = revisión previa. Obligatorio si modo=revision"
         required: false
+        default: "0"
       namespace:
         description: "Namespace de Kubernetes"
         required: false
@@ -27,7 +28,9 @@ on:
         default: "prod"
 
 permissions:
-  contents: read
+  contents: write
+  packages: write
+  actions: read
 
 jobs:
   rollback:
