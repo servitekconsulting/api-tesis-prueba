@@ -46,8 +46,19 @@ jobs:
       working-directory: .
       image-name: myapp-java
       environment: stg
-      #releaseCandidateVersion: ${{ inputs.releaseCandidateVersion }}
       releaseCandidateVersion: ${{ github.event.inputs.releaseCandidateVersion }}
+
+  chatgpt_failure_advisor_stg:
+    needs: [unit_test, build_deploy_stg]
+    if: failure()     # ← condición para que solo corra si falló algún job previo
+    uses: servitekconsulting/reusable-workflows/.github/workflows/chatgpt_failure.yaml@main
+    permissions:
+      contents: read
+      actions: read    # ← si tu script usa la API de Actions/logs
+    with:
+      python_version: '3.10'
+      environment: stg
+    secrets: inherit
 
   create_rc_release:
     needs: [build_deploy_stg]   # por si quieres encadenarlo
@@ -96,6 +107,32 @@ jobs:
       #deployment_name: "myapp-java"       # <- nombre exacto del Deployment en k8s
       #namespace: "default"
     secrets: inherit
+  
+  
+  rollback_if_failed:
+    needs: [deploy_prod]
+    if: failure()
+    uses: servitekconsulting/reusable-workflows/.github/workflows/rollback.yaml@main
+    with:
+      rollback_mode: "revision"
+      to_revision: "0"
+      namespace: "default"
+      deployment_name: "myapp-java"
+      container_name: ""      # si igual al deployment
+      environment: ""         # sin aprobación para rollback automático
+    secrets: inherit
+
+  chatgpt_failure_advisor_prod:
+    needs: [deploy_prod, rollback_if_failed]
+    if: failure()     # ← condición para que solo corra si falló algún job previo
+    uses: servitekconsulting/reusable-workflows/.github/workflows/chatgpt_failure.yaml@main
+    permissions:
+      contents: read
+      actions: read    # ← si tu script usa la API de Actions/logs
+    with:
+      python_version: '3.10'
+      environment: prd
+    secrets: inherit
 
   generate_release:
     needs: [deploy_prod]
@@ -105,7 +142,6 @@ jobs:
       packages: write
       id-token: write
     with:
-      #environment: prod
       rc_version: ${{ github.event.inputs.releaseCandidateVersion }}
       title_prefix: "Release"
       generate_notes: true

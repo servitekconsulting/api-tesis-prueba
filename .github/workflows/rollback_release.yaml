@@ -1,4 +1,4 @@
-name: Manual Rollback (mixed)
+name: Manual Rollback Release
 
 on:
   workflow_dispatch:
