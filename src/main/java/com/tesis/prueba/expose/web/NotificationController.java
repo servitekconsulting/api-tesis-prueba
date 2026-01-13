@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/notification", produces = MediaType.APPLICATION_JSON_VALUE)
 public class NotificationController {
 
-    private static final String GREETING = "Hello, World!";
+    private static final String GREETING = "Hello, tesis!";
 
     @GetMapping("/email")
     public String notificationEmail() {
