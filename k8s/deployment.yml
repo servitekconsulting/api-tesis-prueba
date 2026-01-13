@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: myapp-java
-          image: tesiscloud.azurecr.io/myapp-java:latest  # será sustituida por el tag SHA
+          image: servitekcloud.azurecr.io/myapp-java:latest  # será sustituida por el tag SHA
           ports:
             - containerPort: 8080
